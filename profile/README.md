@@ -1,15 +1,8 @@
 <div align="left"><h1>Aulas</h1></div>
 
 <div align="center">
-    <h3>2026/05 - Faturamento nos cinemas • DC vs Marvel</h3>
+    <h3>2026 - Faturamento nos cinemas • DC vs Marvel</h3>
         <img width="30%" src="https://t.ctcdn.com.br/pM9bRsGXQE84cGHlr7Xu2zOXRzU=/1200x675/smart/i760224.jpeg"> <br>
-        <a target="_blank" href="https://github.com/lucas-aulas/data_project-202605-movies_dc_vs_marvel/blob/main/docs/doc.md"><img src="https://img.shields.io/badge/Documentação-0B65C3?style=for-the-badge&logo=googledocs&logoColor=white"></a> 
-        <a target="_blank" href="https://github.com/lucas-aulas/data_project-202605_dc_vs_marvel"><img src="https://img.shields.io/badge/Código • data__project--202605__dc__vs__marvel-ffffff?style=for-the-badge&logo=github&logoColor=black"></a>
+        <a target="_blank" href="../docs/DCvsMavel/DcVsMarvel.md"><img src="https://img.shields.io/badge/Documentação-0B65C3?style=for-the-badge&logo=googledocs&logoColor=white"></a> 
+        <a target="_blank" href="https://github.com/lucas-aulas/data_project-202605_dc_vs_marvel"><img src="https://img.shields.io/badge/Template • data__project-ffffff?style=for-the-badge&logo=github&logoColor=black"></a>
 </div>
-
-<!-- <div align="center">
-    <h3>yyyy/mm - titulo...</h3>
-        <img width="30%" src="____________________"> <br>
-        <a target="_blank" href="____________________.md"><img src="https://img.shields.io/badge/____________________-0B65C3?style=for-the-badge&logo=googledocs&logoColor=white"></a> 
-        <a target="_blank" href="____________________"><img src="https://img.shields.io/badge/Código • ____________________-ffffff?style=for-the-badge&logo=github&logoColor=black"></a>
-</div> -->
