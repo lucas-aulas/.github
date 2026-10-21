@@ -3,17 +3,16 @@
     <h3>
         Engenharia de Dados <br> da Ingestão à modelagem <br> Star Schema 
         com Python e SQL <br>
-    </h2>
+    </h3>
     <h4>
         Faturamento nos cinemas • DC vs Marvel
     </h4>
     <hr>
 </div>
 
-
 - **Sumário**
     - [1. PREPARAÇÃO DO AMBIENTE](#1-preparação-do-ambiente)
-    - [2. CONFIGURAÇÃO DO BIGQUERY](#3-código--ingestão)
+    - [2. CONFIGURAÇÃO DO BIGQUERY](#2-configuração-do-bigquery)
     - [3. CÓDIGO · Ingestão](#3-código--ingestão)
     - [4. CÓDIGO · Tratamento](#4-código--tratamento)
     - [5. CÓDIGO · Star Schema](#5-código--star-schema)
@@ -83,13 +82,13 @@ tmdbsimple            # Cliente Python simples para consumir a API do The Movie 
     python -m pip install -r requirements.txt
     ```
 
-> [!NOTE]
+> ℹ️ **Nota:** 
 > Instalação separada (sem usar `requirements.txt`)
 > ```py
 > pip install db-dtypes google-auth google-cloud-bigquery igmapper ipykernel pandas-gbq pandas selenium tmdbsimple
 > ```
 
-> [!WARNING]
+> ⚠️ **Aviso:**
 > Erro `ModuleNotFoundError` → Dependência não instalada no ambiente virtual.
 > ```py
 > ------------------------------------------------------------
@@ -105,14 +104,12 @@ tmdbsimple            # Cliente Python simples para consumir a API do The Movie 
 > pip install BIBLIOTECA_X
 > ```
 
-> [!TIP]
-> Limpar tudo do Ambiente Virtual
-> 
-> Limpar Cache do PIP
+> 💡 **Dica:** Limpar tudo do Ambiente Virtual
+> **Limpar Cache do PIP**
 > ```py
 > pip cache purge
 > ```
-> Desinstalar tudo que já foi instalado no VENV
+> **Desinstalar tudo que já foi instalado no VENV**
 > ```py
 > # Linux
 > pip freeze > req_installed.txt && pip uninstall -r req_installed.txt -y && pip cache purge
@@ -606,7 +603,7 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     - 2º Solicitar chave da API: https://themoviedb.org/settings/api/request
     - 3º Configurações da API: https://themoviedb.org/settings/api
 
-> [!NOTE]
+> ℹ️ **Nota:** 
 > Leia a documentação: https://pypi.org/project/tmdbsimple
 
 1. Define a chave de autenticação da API do TMDB.
@@ -634,7 +631,7 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
 
 <h2 align="left">Igmapper</h2>
 
-> [!NOTE]
+> ℹ️ **Nota:** 
 > Leia a documentação: https://pypi.org/project/igmapper
 
 1. Configura o cliente de acesso ao Instagram via Igmapper.
