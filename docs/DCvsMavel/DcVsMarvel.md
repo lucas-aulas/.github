@@ -11,7 +11,7 @@
 </div>
 
 
-- **Sumário**v
+- **Sumário**
     - [1. PREPARAÇÃO DO AMBIENTE](#1-preparação-do-ambiente)
     - [2. CONFIGURAÇÃO DO BIGQUERY](#3-código--ingestão)
     - [3. CÓDIGO · Ingestão](#3-código--ingestão)
