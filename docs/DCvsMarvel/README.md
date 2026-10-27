@@ -179,48 +179,93 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
 
 1. Import e definição das view com pandas
     ```py
-    from google.cloud import bigquery
-    from google.oauth2 import service_account
-    import pandas as pd
+    # ==============================================================================
+    # 1. IMPORTAÇÃO DE BIBLIOTECAS E DEPENDÊNCIAS
+    # ==============================================================================
 
-    pd.set_option("display.max_columns", None)
-    pd.set_option("display.max_rows", 10)
+    # Ferramentas de Nuvem (Google Cloud Platform - GCP)
+    from google.cloud import bigquery  # Conector oficial do banco de dados analítico (BigQuery) da Google.
+    from google.oauth2 import service_account  # Mecanismo de autenticação por chave/arquivo JSON de conta de serviço.
+
+    # Manipulação e Análise de Dados
+    import pandas as pd  # A principal biblioteca de Data Science para tabelas (DataFrames) e manipulação matricial.
+
+    # ==============================================================================
+    # 2. CONFIGURAÇÕES DE VISUALIZAÇÃO (PANDAS DISPLAY CONFIG)
+    # ==============================================================================
+
+    # Por padrão, o Pandas esconde colunas/linhas se a tabela for muito grande.
+    # Estas configurações garantem que possamos inspecionar os dados no terminal/notebook.
+    pd.set_option("display.max_columns", None)  # Não limita o número máximo de colunas exibidas na tela.
+    pd.set_option("display.max_rows", 10)  # Limita a exibição visual a no máximo 10 linhas para não travar a IDE.
     ``` 
 2. Definição das variáveis utilizadas para ingestão de dados
     ```py
-    dataset_movies_url = "https://media.githubusercontent.com/media/lucas-aulas/dataset-movies/refs/heads/main"
+    # ==============================================================================
+    # 3. CONFIGURAÇÃO DE FONTES DE DADOS E INFRAESTRUTURA DE NUVEM
+    # ==============================================================================
 
-    gcp_project_id_aula = "project202605-496913"
+    # --- FONTE 1: REPOSITÓRIO REMOTO (GITHUB) ---
+    # URL base onde estão armazenados arquivos CSV públicos contendo dados históricos de filmes.
+    url_github_movies_dataset = "https://media.githubusercontent.com/media/lucas-aulas/dataset-movies/refs/heads/main"
 
-    gcp_service_acc_file_aluno = "../secrets/____________________.json"
-    gcp_id_do_projeto = "____________________"
-    my_gcp_cred = service_account.Credentials.from_service_account_file(gcp_service_acc_file_aluno)
-    my_gcp_client = bigquery.Client(credentials=my_gcp_cred)
+    # --- FONTE 2: AMBIENTE DE LEITURA (PROJETO COMPARTILHADO DO PROFESSOR) ---
+    # ID do projeto na Google Cloud de onde leremos uma tabela institucional de bilheterias.
+    fonte_gcp_project_id = "__________"
+
+    # --- DESTINO: AMBIENTE DE ESCRITA (PROJETO PRIVADO DO ALUNO) ---
+    # Caminho local do arquivo JSON que contém as credenciais de segurança (chave privada).
+    # ATENÇÃO: Nunca envie esta chave para o GitHub público! Ela equivale à senha do seu banco de dados.
+    meu_service_account_file = "__________"
+    meu_gcp_project_id = "__________"  # ID do seu projeto pessoal criado no GCP.
+
+    # Inicialização da autenticação e do cliente BigQuery
+    # Transforma o arquivo JSON em um objeto de credenciais aceito pelo Google.
+    gcp_credentials = service_account.Credentials.from_service_account_file(meu_service_account_file)
+
+    # O objeto 'client' funciona como a nossa ponte ativa de conexão/comunicação com a nuvem do Google.
+    bigquery_client = bigquery.Client(credentials=gcp_credentials)
     ```
 3. Leitura dos dados da fonte externa - GitHub
     ```py
-    df_imdb_filmes = pd.read_csv(f"{dataset_movies_url}/imdb_filmes.csv")
+    # ==============================================================================
+    # 4. EXTRAÇÃO DE DADOS (EXTRACT)
+    # ==============================================================================
+
+    # Leitura de um arquivo CSV hospedado na web diretamente para a memória como um DataFrame do Pandas.
+    # Este dataset contém dados gerais de filmes avaliados no site IMDB (Internet Movie Database).
+    df_imdb_filmes = pd.read_csv(f"{url_github_movies_dataset}/imdb_filmes.csv")
     ```
 4. Leitura dos dados da fonte externa - BigQuery
     ```py
-    df_boxoffice_dc_marvel = my_gcp_client.query(
-        f"SELECT * FROM {gcp_project_id_aula}.raw.boxoffice_dc_marvel"
+    # Execução de uma consulta SQL estruturada diretamente dentro do Data Warehouse (BigQuery) da nuvem.
+    # O método '.to_dataframe()' faz o download do resultado da query SQL e o converte em uma tabela Pandas local.
+    # 'create_bqstorage_client=False' evita criar uma conexão otimizada adicional, mantendo a chamada simples.
+    df_boxoffice_dc_marvel = bigquery_client.query(
+        f"SELECT * FROM {fonte_gcp_project_id}.raw.boxoffice_dc_marvel"
     ).to_dataframe(create_bqstorage_client=False)
     ```
 5. Envio para o seu banco de dados
     ```py
+    # ==============================================================================
+    # 7. CARGA INICIAL - CAMADA BRONZE (LOAD)
+    # ==============================================================================
+
+    # Enviando os dados brutos locais para tabelas físicas dentro do BigQuery.
+    # 'destination_table="bronze.nome"' cria ou insere os dados no Dataset chamado 'bronze'.
+    # 'if_exists="replace"' indica que se a tabela já existir lá em cima, ela será apagada e recriada do zero.
     df_imdb_filmes.to_gbq(
-        project_id=gcp_id_do_projeto,
+        project_id=meu_gcp_project_id,
         destination_table="bronze.imdb_filmes",
         if_exists="replace",
-        credentials=my_gcp_cred,
+        credentials=gcp_credentials,
     )
 
     df_boxoffice_dc_marvel.to_gbq(
-        project_id=gcp_id_do_projeto,
+        project_id=meu_gcp_project_id,
         destination_table="bronze.boxoffice_dc_marvel",
         if_exists="replace",
-        credentials=my_gcp_cred,
+        credentials=gcp_credentials,
     )
     ```
 </details>
@@ -233,41 +278,105 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
 
 1. Bibliotecas que vão ser utilizadas
     ```py
-    from google.cloud import bigquery
-    from google.oauth2 import service_account
-    import pandas as pd
+    # ==============================================================================
+    # 1. IMPORTAÇÃO DE BIBLIOTECAS E DEPENDÊNCIAS
+    # ==============================================================================
 
-    pd.set_option("display.max_columns", None)
-    pd.set_option("display.max_rows", 10)
+    # Ferramentas de Nuvem (Google Cloud Platform - GCP)
+    from google.cloud import bigquery  # Cliente oficial de comunicação com o Google BigQuery.
+    from google.oauth2 import service_account  # Responsável pela autenticação segura via Service Account JSON.
+
+    # Manipulação e Análise de Dados
+    import pandas as pd  # Biblioteca principal para tratamento tabular e análises de dados.
+
+    # ==============================================================================
+    # 2. CONFIGURAÇÕES DE VISUALIZAÇÃO (PANDAS DISPLAY CONFIG)
+    # ==============================================================================
+
+    # Por padrão, o Pandas esconde colunas/linhas se a tabela for muito grande.
+    # Estas configurações garantem que possamos inspecionar os dados no terminal/notebook.
+    pd.set_option("display.max_columns", None)  # Não limita o número máximo de colunas exibidas na tela.
+    pd.set_option("display.max_rows", 10)  # Limita a exibição visual a no máximo 10 linhas para não travar a IDE.
     ```
 2. Variáveis e informações para a ingestão
     ```py
-    gcp_service_acc_file_aluno = "../secrets/____________________.json"
-    gcp_id_do_projeto = "____________________"
-    my_gcp_cred = service_account.Credentials.from_service_account_file(gcp_service_acc_file_aluno)
-    my_gcp_client = bigquery.Client(credentials=my_gcp_cred)
+    # ==============================================================================
+    # 3. CONFIGURAÇÃO DE AUTENTICAÇÃO E CONEXÃO COM O BIGQUERY
+    # ==============================================================================
+
+    # Caminho local do arquivo JSON contendo as credenciais privadas da conta de serviço.
+    # ATENÇÃO: Nunca versionar este arquivo no GitHub público.
+    meu_service_account_file = "../secrets/_______________________.json"
+
+    # ID do projeto pessoal criado no Google Cloud Platform.
+    meu_gcp_project_id = "_______________________"
+
+    # Conversão do arquivo JSON em um objeto de credenciais autenticadas.
+    gcp_credentials = service_account.Credentials.from_service_account_file(meu_service_account_file)
+
+    # Inicialização do cliente de comunicação com o BigQuery.
+    # Este objeto será utilizado para leitura e escrita de tabelas na nuvem.
+    bigquery_client = bigquery.Client(credentials=gcp_credentials, project=meu_gcp_project_id)
     ```
 3. Leitura da tabela `boxoffice_dc_marvel` no BigQuery
     ```py
-    df_boxoffice_dc_marvel = my_gcp_client.query(
-        "SELECT * FROM bronze.boxoffice_dc_marvel"
-    ).to_dataframe(create_bqstorage_client=False)
+    # ==============================================================================
+    # 4. EXTRAÇÃO DE DADOS (EXTRACT)
+    # ==============================================================================
+
+    # ------------------------------------------------------------------------------
+    # Fonte: Camada Bronze - BigQuery
+    # Objetivo:
+    #   Carregar dados financeiros e comerciais de filmes da Marvel e DC.
+    #
+    # Dataset:
+    #   bronze.boxoffice_dc_marvel
+    # ------------------------------------------------------------------------------
+
+    df_boxoffice_dc_marvel = bigquery_client.query("""
+        SELECT *
+        FROM bronze.boxoffice_dc_marvel
+        """).to_dataframe(create_bqstorage_client=False)
     ```
 4. Leitura da tabela `imdb_filmes` no BigQuery
     ```py
-    df_imdb_filmes = my_gcp_client.query(
-        "SELECT * FROM bronze.imdb_filmes"
-    ).to_dataframe(create_bqstorage_client=False)
+    # ------------------------------------------------------------------------------
+    # Fonte: Camada Bronze - BigQuery
+    # Objetivo:
+    #   Carregar dados técnicos e avaliações do IMDB.
+    #
+    # Dataset:
+    #   bronze.imdb_filmes
+    # ------------------------------------------------------------------------------
+
+    df_imdb_filmes = bigquery_client.query("SELECT * FROM bronze.imdb_filmes ").to_dataframe(create_bqstorage_client=False)
     ```
 5. Merge dos DataFrames
     ```py
+    # ==============================================================================
+    # 5. CONSOLIDAÇÃO DOS DATASETS (MERGE / JOIN)
+    # ==============================================================================
+
+    # Realizando junção entre os datasets financeiros e técnicos.
+    #
+    # Regras de cruzamento:
+    #   - FILM  -> TITLE
+    #   - YEAR  -> YEAR
+    #
+    # Tipo de JOIN:
+    #   - OUTER JOIN
+    #
+    # Objetivo:
+    #   Preservar todos os registros presentes em ambas as tabelas,
+    #   mesmo que existam inconsistências entre os datasets.
+
     df_complete_movie_info = (
         pd.merge(
             df_boxoffice_dc_marvel,
             df_imdb_filmes,
             left_on=["FILM", "YEAR"],
             right_on=["TITLE", "YEAR"],
-            how="outer"
+            how="outer",
         )
         .sort_values(by="YEAR", ascending=False)
         .drop_duplicates(keep="last")
@@ -275,13 +384,32 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     ```
 6. Filtrando apenas filmes da Marvel e DC
     ```py
+    # ==============================================================================
+    # 6. FILTRAGEM DE FRANQUIAS (MARVEL E DC)
+    # ==============================================================================
+
+    # Mantendo apenas filmes pertencentes às franquias:
+    #   - Marvel
+    #   - DC
+    #
+    # Isso elimina registros de outros universos cinematográficos presentes no dataset.
+
     df_complete_dc_marvel = df_complete_movie_info[
-        (df_complete_movie_info["FRANCHISE"] == "Marvel") |
-        (df_complete_movie_info["FRANCHISE"] == "DC")
+        (df_complete_movie_info["FRANCHISE"] == "Marvel") | (df_complete_movie_info["FRANCHISE"] == "DC")
     ]
     ```
 7. Removendo colunas desnecessárias
     ```py
+    # ==============================================================================
+    # 7. REMOÇÃO DE COLUNAS REDUNDANTES E DESNECESSÁRIAS
+    # ==============================================================================
+
+    # Eliminando colunas:
+    #   - duplicadas após o merge,
+    #   - auxiliares,
+    #   - pouco relevantes para análises finais,
+    #   - ou já representadas por outras métricas equivalentes.
+
     df_complete_dc_marvel = df_complete_dc_marvel.drop(
         columns=[
             "25X_PROD",
@@ -298,13 +426,44 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     ```
 8. Visualizando os filmes com maior nota IMDB
     ```py
+    # ==============================================================================
+    # 8. VALIDAÇÃO EXPLORATÓRIA DOS DADOS
+    # ==============================================================================
+
+    # Verificando os filmes com maior nota no IMDB após o processo de consolidação.
+    # Esta análise rápida ajuda a validar:
+    #   - integridade do merge,
+    #   - consistência das notas,
+    #   - ordenação correta dos dados.
+
     df_complete_dc_marvel.sort_values(by="RATING_IMDB", ascending=False).head(2)
     ```
 9. Tratamento das colunas monetárias, percentuais, datas e inteiros
     ```py
+    # ==============================================================================
+    # 9. CÓPIA DE SEGURANÇA PARA TRATAMENTO (DATA CLEANING)
+    # ==============================================================================
+
+    # Criando uma cópia independente do DataFrame consolidado.
+    # Isso evita modificar acidentalmente o dataset original durante os tratamentos.
+
     df_tratado = df_complete_dc_marvel.copy()
     ```
     ```py
+    # ==============================================================================
+    # 10. TRATAMENTO DE COLUNAS MONETÁRIAS
+    # ==============================================================================
+
+    # Colunas contendo valores financeiros armazenados originalmente como texto.
+    #
+    # Problemas encontrados:
+    #   - símbolo "$"
+    #   - separadores de milhar ","
+    #   - valores nulos representados como string "None"
+    #
+    # Objetivo:
+    #   Converter tudo para tipo numérico float.
+
     money_cols = [
         "BOX_OFFICE_GROSS_OTHER_TERRITORIES",
         "BUDGET_x",
@@ -316,27 +475,63 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     ]
 
     for col in money_cols:
-        df_tratado[col] = df_tratado[col].astype(str).str.replace("$", "").str.replace(",", "").replace("None", 0).astype(float)
+        df_tratado[col] = (
+            df_tratado[col]
+            .astype(str)
+            .str.replace("$", "")
+            .str.replace(",", "")
+            .replace("None", 0)
+            .astype(float)
+        )
     ```
     ```py
+    # ==============================================================================
+    # 11. TRATAMENTO DE COLUNAS PERCENTUAIS
+    # ==============================================================================
+
+    # Removendo o símbolo "%" e convertendo os valores para float.
+
     percent_cols = ["DOMESTIC"]
 
     for col in percent_cols:
         df_tratado[col] = df_tratado[col].astype(str).str.replace("%", "").astype(float)
     ```
     ```py
+    # ==============================================================================
+    # 12. PADRONIZAÇÃO DE COLUNAS DE DATA
+    # ==============================================================================
+
+    # Conversão de strings para formato datetime.
+    #
+    # Formato original:
+    #   DD/MM/YYYY
+
     date_cols = ["US_RELEASE_DATE"]
 
     for col in date_cols:
         df_tratado[col] = pd.to_datetime(df_tratado[col], format="%d/%m/%Y")
     ```
     ```py
+    # ==============================================================================
+    # 13. TRATAMENTO DE MÉTRICAS INTEIRAS
+    # ==============================================================================
+
+    # Colunas quantitativas contendo:
+    #   - votos,
+    #   - premiações,
+    #   - indicações,
+    #   - métricas críticas.
+    #
+    # Estratégia:
+    #   - preencher nulos com zero,
+    #   - converter para inteiro.
+
     int_cols = [
         "VOTE",
         "WIN",
         "OSCAR",
         "NOMINATION",
-        "ROTTEN_TOMATOES_CRITIC_SCORE"
+        "ROTTEN_TOMATOES_CRITIC_SCORE",
     ]
 
     for col in int_cols:
@@ -348,6 +543,19 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     ```
 11. Padronizando colunas categóricas
     ```py
+    # ==============================================================================
+    # 14. NORMALIZAÇÃO DE CAMPOS TEXTUAIS
+    # ==============================================================================
+
+    # Alguns campos possuem múltiplos valores separados por vírgula.
+    #
+    # Exemplo:
+    #   "Action, Adventure, Sci-Fi"
+    #
+    # Estratégia:
+    #   - manter apenas o primeiro valor principal,
+    #   - remover espaços excedentes.
+
     df_tratado["GENRE"] = df_tratado["GENRE"].str.split(",").str[0].str.strip()
 
     df_tratado["COUNTRY_ORIGIN"] = df_tratado["COUNTRY_ORIGIN"].str.split(",").str[0].str.strip()
@@ -355,20 +563,48 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     df_tratado["LANGUAGE"] = df_tratado["LANGUAGE"].str.split(",").str[0].str.strip()
 
     df_tratado["PRODUCTION_COMPANY"] = df_tratado["PRODUCTION_COMPANY"].str.split(",").str[0].str.strip()
+
+    df_tratado["WRITER"] = df_tratado["WRITER"].str.split(",").str[0].str.strip()
     ```
 12. Organização final das colunas
     ```py
+    # ==============================================================================
+    # 15. HIGIENIZAÇÃO FINAL DO DATAFRAME
+    # ==============================================================================
+
+    # Removendo colunas auxiliares desnecessárias.
+    #
+    # errors="ignore":
+    #   evita erro caso a coluna não exista no dataset.
+
     df_tratado = df_tratado.drop(columns=["Unnamed: 0"], errors="ignore")
 
-    df_tratado = df_tratado[sorted(df_tratado.columns)]
+    # Reorganizando colunas em ordem alfabética
+    # para padronização estrutural.
+
+    df_tratado = df_tratado[sorted(df_tratado.columns)].drop_duplicates()
     ```
 13. Salvando a tabela tratada na camada Silver
     ```py
+    # ==============================================================================
+    # 16. CARGA ANALÍTICA - CAMADA SILVER (LOAD)
+    # ==============================================================================
+
+    # Salvando o dataset tratado na camada Silver do Data Warehouse.
+    #
+    # Camada Silver:
+    #   - dados limpos,
+    #   - estruturados,
+    #   - prontos para análises,
+    #   - dashboards,
+    #   - machine learning,
+    #   - ou consumo analítico.
+
     df_tratado.to_gbq(
-        project_id=gcp_id_do_projeto,
+        project_id=meu_gcp_project_id,
         destination_table="silver.complete_dc_marvel",
         if_exists="replace",
-        credentials=my_gcp_cred,
+        credentials=gcp_credentials,
     )
     ```
 </details>
