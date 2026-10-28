@@ -189,6 +189,7 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
 
     # Manipulação e Análise de Dados
     import pandas as pd  # A principal biblioteca de Data Science para tabelas (DataFrames) e manipulação matricial.
+    import pandas_gbq
 
     # ==============================================================================
     # 2. CONFIGURAÇÕES DE VISUALIZAÇÃO (PANDAS DISPLAY CONFIG)
@@ -268,6 +269,28 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
         credentials=gcp_credentials,
     )
     ```
+    
+    **Python 3.12+**
+    
+    ```py
+    import pandas_gbq
+
+    pandas_gbq.to_gbq(
+        df_imdb_filmes,
+        destination_table="bronze.imdb_filmes",
+        project_id=meu_gcp_project_id,
+        if_exists="replace",
+        credentials=gcp_credentials,
+    )
+
+    pandas_gbq.to_gbq(
+        df_box_office_dc_marvel,
+        project_id=meu_gcp_project_id,
+        destination_table="bronze.boxoffice_dc_marvel",
+        if_exists="replace",
+        credentials=gcp_credentials,
+    )
+    ```
 </details>
 
 <div align="center"> 
@@ -288,6 +311,7 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
 
     # Manipulação e Análise de Dados
     import pandas as pd  # Biblioteca principal para tratamento tabular e análises de dados.
+    import pandas_gbq
 
     # ==============================================================================
     # 2. CONFIGURAÇÕES DE VISUALIZAÇÃO (PANDAS DISPLAY CONFIG)
@@ -600,7 +624,8 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     #   - machine learning,
     #   - ou consumo analítico.
 
-    df_tratado.to_gbq(
+    pandas_gbq.to_gbq(
+        df_tratado,
         project_id=meu_gcp_project_id,
         destination_table="silver.complete_dc_marvel",
         if_exists="replace",
@@ -620,6 +645,7 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     from google.cloud import bigquery
     from google.oauth2 import service_account
     import pandas as pd
+    import pandas_gbq
 
     pd.set_option("display.max_columns", None)
     pd.set_option("display.max_rows", 10)
@@ -777,7 +803,8 @@ Cria uma conta de serviço para autenticar o acesso ao BigQuery.
     for key, value in minhas_tabelas.items():
         print(key)
 
-        value.to_gbq(
+        pandas_gbq.to_gbq(
+            value,
             project_id=gcp_id_do_projeto,
             destination_table=f"gold.{key}",
             if_exists="replace",
